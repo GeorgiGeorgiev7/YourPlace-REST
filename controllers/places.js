@@ -1,45 +1,9 @@
+const { v4: uuidv4 } = require('uuid');
+
 const HttpError = require('../models/httpError');
 
 
 const DUMMY_DATA = [
-    {
-        id: 'p1',
-        title: 'Empire State Building',
-        description: 'One of the greatest skyscrapers in the world!',
-        imageUrl: 'https://images.fineartamerica.com/images-medium-large-5/empire-state-building-at-sunset-sylvain-sonnet.jpg',
-        address: '20 W 34th St, New York, NY 10001, United States',
-        coordinates: {
-            lat: 40.7484445,
-            lng: -73.9878531
-        },
-        creatorId: 'uid1'
-    },
-
-    {
-        id: 'p2',
-        title: 'Empire State Building',
-        description: 'One of the greatest skyscrapers in the world!',
-        imageUrl: 'https://lh5.googleusercontent.com/p/AF1QipOqzJqLshzKnIkL6VlTOaPu6Y2YoEjrGXy79I4E=w408-h271-k-no',
-        address: '20 W 34th St, New York, NY 10001, United States',
-        coordinates: {
-            lat: 40.7484445,
-            lng: -73.9878531
-        },
-        creatorId: 'uid2'
-    },
-
-    {
-        id: 'p3',
-        title: 'Empire State Building',
-        description: 'One of the greatest skyscrapers in the world!',
-        imageUrl: 'https://static.posters.cz/image/1300/posters/henri-silberman-empire-state-building-i12995.jpg',
-        address: '20 W 34th St, New York, NY 10001, United States',
-        coordinates: {
-            lat: 40.7484445,
-            lng: -73.9878531
-        },
-        creatorId: 'uid1'
-    }
 ];
 
 
@@ -71,7 +35,26 @@ const getPlaceByUserId = (req, res, next) => {
     res.json({ places });
 };
 
+const createPlace = (req, res, next) => {
+    const { title, description, coordinates, address, creator } = req.body;
+
+    const createdPlace = {
+        id: uuidv4(),
+        title,
+        description,
+        location: coordinates,
+        address,
+        creator
+    };
+
+    DUMMY_DATA.push(createdPlace);
+
+    res.status(201).json({ place: createdPlace });
+
+};
+
 module.exports = {
     getPlaceById,
-    getPlaceByUserId
+    getPlaceByUserId,
+    createPlace
 };
