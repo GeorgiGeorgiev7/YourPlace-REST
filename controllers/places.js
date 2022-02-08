@@ -7,7 +7,7 @@ const DUMMY_DATA = [
 ];
 
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = (req, res) => {
     const placeId = req.params.pid;
     const place = DUMMY_DATA.find(p => p.id == placeId);
 
@@ -35,7 +35,7 @@ const getPlaceByUserId = (req, res, next) => {
     res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
+const createPlace = (req, res) => {
     const { title, description, coordinates, address, creator } = req.body;
 
     const createdPlace = {
@@ -53,8 +53,30 @@ const createPlace = (req, res, next) => {
 
 };
 
+const updatePlaceById = (req, res) => {
+    const placeId = req.params.pid;
+    const { title, description } = req.body;
+
+    const updatedPlace = {
+        ...DUMMY_DATA.find(place => place.id == placeId),
+        title,
+        description
+    };
+    const placeIndex = DUMMY_DATA.findIndex(place => place.id == placeId);
+
+    DUMMY_DATA[placeIndex] = updatedPlace;
+
+    res.status(200).json({ place: updatedPlace });
+};
+
+const deletePlaceById = (req, res) => {
+
+};
+
 module.exports = {
     getPlaceById,
     getPlaceByUserId,
-    createPlace
+    createPlace,
+    updatePlaceById,
+    deletePlaceById
 };
