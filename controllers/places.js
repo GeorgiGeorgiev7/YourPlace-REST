@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const HttpError = require('../models/httpError');
 
 
-const DUMMY_DATA = [
+let DUMMY_DATA = [
 ];
 
 
@@ -70,7 +70,9 @@ const updatePlaceById = (req, res) => {
 };
 
 const deletePlaceById = (req, res) => {
-
+    const placeId = req.params.pid;
+    DUMMY_DATA = DUMMY_DATA.filter(place => place.id != placeId);
+    res.status(200).json({ message: 'Successfully deleted place.' });
 };
 
 module.exports = {
