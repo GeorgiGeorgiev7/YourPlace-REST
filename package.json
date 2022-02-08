@@ -1,0 +1,27 @@
+{
+  "name": "yourplace-rest",
+  "version": "1.0.0",
+  "description": "- All CRUD (Create, Read,\r Update, Delete) methods\r covered\r - Multiple data models,\r image upload, input\r validation\r - Authentication and\r authorization",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GeorgiGeorgiev7/YourPlace-REST.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GeorgiGeorgiev7/YourPlace-REST/issues"
+  },
+  "homepage": "https://github.com/GeorgiGeorgiev7/YourPlace-REST#readme",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
