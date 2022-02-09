@@ -59,5 +59,4 @@ async function start() {
 
     app.listen(PORT, () =>
         console.log(`>>> Server running: http://localhost:${PORT}`));
-
 }

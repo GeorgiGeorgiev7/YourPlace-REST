@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 const getCoordsForAddress = require('../util/location');
 
-const Place = require('../models/Place');
 const HttpError = require('../models/httpError');
+const Place = require('../models/Place');
+const User = require('../models/User');
 
 
 const placeModelView = (place) => {
@@ -69,15 +71,25 @@ const getPlacesByUserId = async (req, res, next) => {
 
 const createPlace = async (req, res, next) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
         return next(new HttpError('Invalid data passed.', 422));
     }
 
     const { title, description, address, creator } = req.body;
 
-    let location;
+    let user;
+    try {
+        user = await User.findById(creator);
+    } catch (err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    }
+    if (!user) {
+        const error = new HttpError('Could not find user for provided id', 404);
+        return next(error);
+    }
 
+    let location;
     try {
         location = await getCoordsForAddress(address);
     } catch (err) {
@@ -89,17 +101,19 @@ const createPlace = async (req, res, next) => {
         description,
         address,
         location,
-        image: 'todo',
+        image: 'https://cdn2.iconfinder.com/data/icons/furniture-243/128/_armchair-furniture-512.png',
         creator
     });
 
     try {
         await createdPlace.save();
+
         res
             .status(201)
-            .json({ place: createdPlace });
+            .json({ place: placeModelView(createdPlace) });
     } catch (err) {
-        const error = new Error('Place creating failed.', 500);
+        console.log(err);
+        const error = new Error('Creation failed.', 500);
         return next(error);
     }
 
