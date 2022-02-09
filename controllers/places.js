@@ -22,7 +22,6 @@ const placeModelView = (place) => {
     };
 };
 
-
 const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
 
@@ -48,18 +47,30 @@ const getPlaceById = async (req, res, next) => {
     res.json({ place: placeModelView(place) });
 };
 
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.uid;
-    const places = DUMMY_DATA.filter(p => p.creatorId == userId);
 
-    if (places.length === 0) {
-        return next(new HttpError(
-            'Could not find places for the provided user id.',
-            404
-        ));
+    let places;
+
+    try {
+        places = await Place.find({ creator: userId });
+    } catch (err) {
+        const error = new HttpError(
+            err.message,
+            500
+        );
+        return next(error);
     }
 
-    res.json({ places });
+    if (places.length === 0) {
+        const error = new HttpError(
+            'Could not find places for the provided user id.',
+            404
+        );
+        return next(error);
+    }
+
+    res.json({ places: places.map(placeModelView) });
 };
 
 const createPlace = async (req, res, next) => {
