@@ -84,8 +84,7 @@ const login = async (req, res, next) => {
         return next(error);
     }
 
-
-    res.json({ message: 'Successfully logged in.' });
+    res.json({ user: userViewModel(existingUser) });
 
 };
 
