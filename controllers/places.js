@@ -38,8 +38,6 @@ const getPlaceById = async (req, res, next) => {
         return next(error);
     }
 
-    console.log(place.toObject({ getters: true }));
-
     res.json({ place: placeModelView(place) });
 };
 
@@ -97,12 +95,13 @@ const createPlace = async (req, res, next) => {
 
     try {
         await createdPlace.save();
+        res
+            .status(201)
+            .json({ place: createdPlace });
     } catch (err) {
         const error = new Error('Place creating failed.', 500);
         return next(error);
     }
-
-    res.status(201).json({ place: createdPlace });
 
 };
 
@@ -122,12 +121,15 @@ const updatePlaceById = async (req, res, next) => {
             title,
             description
         });
+
+        res
+            .status(200)
+            .json({ place: placeModelView(updatedPlace) });
     } catch (err) {
         const error = new HttpError(err.message, 500);
         return next(error);
     }
 
-    res.status(200).json({ place: placeModelView(updatedPlace) });
 };
 
 const deletePlaceById = async (req, res, next) => {
@@ -135,12 +137,14 @@ const deletePlaceById = async (req, res, next) => {
 
     try {
         await Place.findByIdAndDelete(placeId);
+        res
+            .status(200)
+            .json({ message: 'Successfully deleted place.' });
     } catch (err) {
         const error = new HttpError(err.message, 500);
         return next(error);
     }
 
-    res.status(200).json({ message: 'Successfully deleted place.' });
 };
 
 module.exports = {
