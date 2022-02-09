@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/httpError');
 
@@ -36,6 +37,12 @@ const getPlacesByUserId = (req, res, next) => {
 };
 
 const createPlace = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        throw new HttpError('Invalid data passed.', 422);
+    }
+
     const { title, description, coordinates, address, creator } = req.body;
 
     const createdPlace = {
@@ -54,6 +61,12 @@ const createPlace = (req, res) => {
 };
 
 const updatePlaceById = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        throw new HttpError('Invalid data passed.', 422);
+    }
+
     const placeId = req.params.pid;
     const { title, description } = req.body;
 
@@ -71,6 +84,11 @@ const updatePlaceById = (req, res) => {
 
 const deletePlaceById = (req, res) => {
     const placeId = req.params.pid;
+
+    if (!DUMMY_DATA.find(place => place.id == placeId)) {
+        throw new HttpError('Could not find a place for that id.', 404);
+    }
+
     DUMMY_DATA = DUMMY_DATA.filter(place => place.id != placeId);
     res.status(200).json({ message: 'Successfully deleted place.' });
 };
