@@ -13,7 +13,7 @@ start();
 
 async function start() {
     const CONNECTION_STRING = 'mongodb://localhost:27017/yourplace';
-    
+
     await new Promise((resolve, reject) => {
         mongoose.connect(CONNECTION_STRING, {
             useNewUrlParser: true,
@@ -36,6 +36,15 @@ async function start() {
     const app = express();
 
     app.use(bodyParser.json());
+
+    app.use((req, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers',
+            'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.setHeader('Access-Control-Allow-Methods',
+            'GET, POST, PATCH, DELETE, OPTIONS');
+        next();
+    });
 
     app.use('/api/places', placesRouter);
     app.use('/api/users', usersRoutes);

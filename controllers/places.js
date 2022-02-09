@@ -1,5 +1,4 @@
 const { validationResult } = require('express-validator');
-const mongoose = require('mongoose');
 
 const getCoordsForAddress = require('../util/location');
 
