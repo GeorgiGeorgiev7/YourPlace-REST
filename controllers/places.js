@@ -1,4 +1,3 @@
-const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 
 const getCoordsForAddress = require('../util/location');
@@ -6,9 +5,6 @@ const getCoordsForAddress = require('../util/location');
 const Place = require('../models/Place');
 const HttpError = require('../models/httpError');
 
-
-let DUMMY_DATA = [
-];
 
 const placeModelView = (place) => {
     return {
@@ -110,7 +106,7 @@ const createPlace = async (req, res, next) => {
 
 };
 
-const updatePlaceById = (req, res, next) => {
+const updatePlaceById = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -120,26 +116,30 @@ const updatePlaceById = (req, res, next) => {
     const placeId = req.params.pid;
     const { title, description } = req.body;
 
-    const updatedPlace = {
-        ...DUMMY_DATA.find(place => place.id == placeId),
-        title,
-        description
-    };
-    const placeIndex = DUMMY_DATA.findIndex(place => place.id == placeId);
-
-    DUMMY_DATA[placeIndex] = updatedPlace;
-
-    res.status(200).json({ place: updatedPlace });
-};
-
-const deletePlaceById = (req, res, next) => {
-    const placeId = req.params.pid;
-
-    if (!DUMMY_DATA.find(place => place.id == placeId)) {
-        throw new HttpError('Could not find a place for that id.', 404);
+    let updatedPlace;
+    try {
+        updatedPlace = await Place.findByIdAndUpdate(placeId, {
+            title,
+            description
+        });
+    } catch (err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
     }
 
-    DUMMY_DATA = DUMMY_DATA.filter(place => place.id != placeId);
+    res.status(200).json({ place: placeModelView(updatedPlace) });
+};
+
+const deletePlaceById = async (req, res, next) => {
+    const placeId = req.params.pid;
+
+    try {
+        await Place.findByIdAndDelete(placeId);
+    } catch (err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    }
+
     res.status(200).json({ message: 'Successfully deleted place.' });
 };
 
