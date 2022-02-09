@@ -57,14 +57,6 @@ const getPlacesByUserId = async (req, res, next) => {
         return next(error);
     }
 
-    if (places.length === 0) {
-        const error = new HttpError(
-            'Could not find places for the provided user id.',
-            404
-        );
-        return next(error);
-    }
-
     res.json({ places: places.map(placeModelView) });
 };
 
