@@ -10,19 +10,42 @@ const HttpError = require('../models/httpError');
 let DUMMY_DATA = [
 ];
 
+const placeModelView = (place) => {
+    return {
+        id: place.id,
+        title: place.title,
+        description: place.description,
+        image: place.image,
+        address: place.address,
+        location: place.location,
+        creator: place.creator
+    };
+};
 
-const getPlaceById = (req, res) => {
+
+const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
-    const place = DUMMY_DATA.find(p => p.id == placeId);
+
+    let place;
+
+    try {
+        place = await Place.findById(placeId);
+    } catch (err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    }
 
     if (!place) {
-        throw new HttpError(
+        const error = new HttpError(
             'Could not find a place for the provided id.',
             404
         );
+        return next(error);
     }
 
-    res.json({ place });
+    console.log(place.toObject({ getters: true }));
+
+    res.json({ place: placeModelView(place) });
 };
 
 const getPlacesByUserId = (req, res, next) => {
@@ -76,7 +99,7 @@ const createPlace = async (req, res, next) => {
 
 };
 
-const updatePlaceById = (req, res) => {
+const updatePlaceById = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -98,7 +121,7 @@ const updatePlaceById = (req, res) => {
     res.status(200).json({ place: updatedPlace });
 };
 
-const deletePlaceById = (req, res) => {
+const deletePlaceById = (req, res, next) => {
     const placeId = req.params.pid;
 
     if (!DUMMY_DATA.find(place => place.id == placeId)) {
