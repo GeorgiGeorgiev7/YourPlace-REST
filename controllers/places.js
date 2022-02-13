@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const { validationResult } = require('express-validator');
 
 const getCoordsForAddress = require('../util/location');
@@ -92,7 +94,7 @@ const createPlace = async (req, res, next) => {
         description,
         address,
         location,
-        image: 'https://cdn2.iconfinder.com/data/icons/furniture-243/128/_armchair-furniture-512.png',
+        image: req.file.path,
         creator
     });
 
@@ -103,7 +105,6 @@ const createPlace = async (req, res, next) => {
             .status(201)
             .json({ place: placeModelView(createdPlace) });
     } catch (err) {
-        console.log(err);
         const error = new Error('Creation failed.', 500);
         return next(error);
     }
@@ -141,7 +142,9 @@ const deletePlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
 
     try {
-        await Place.findByIdAndDelete(placeId);
+        const place = await Place.findByIdAndRemove(placeId);
+        fs.unlink(place.image, err => console.log(err));
+
         res
             .status(200)
             .json({ message: 'Successfully deleted place.' });

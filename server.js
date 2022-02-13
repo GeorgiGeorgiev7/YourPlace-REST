@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const express = require('express');
 const mongoose = require('mongoose');
 
@@ -46,6 +49,8 @@ async function start() {
         next();
     });
 
+    app.use('/uploads/images', express.static(path.join('uploads', 'images')));
+
     app.use('/api/places', placesRouter);
     app.use('/api/users', usersRoutes);
 
@@ -54,6 +59,10 @@ async function start() {
     });
 
     app.use((err, req, res, next) => {
+        if (req.file) {
+            fs.unlink(req.file.path, err => console.log(err));
+        }
+
         if (res.headersSent)
             return next(err);
 
