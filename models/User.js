@@ -1,4 +1,4 @@
-const { Schema, model, Types: {ObjectId} } = require('mongoose');
+const { Schema, model } = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
 
@@ -11,4 +11,4 @@ const userSchema = new Schema({
 
 userSchema.plugin(uniqueValidator);
 
-module.exports = model('User', userSchema)
+module.exports = model('User', userSchema);

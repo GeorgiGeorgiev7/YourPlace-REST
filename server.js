@@ -54,7 +54,7 @@ async function start() {
     });
 
     app.use((err, req, res, next) => {
-        if (res.headerSent)
+        if (res.headersSent)
             return next(err);
 
         res
