@@ -56,7 +56,7 @@ const signup = async (req, res, next) => {
         userId: createdUser._id.toString(),
         email: createdUser.email
     },
-        '321secretterces123',
+        process.env.JWT_SECRET,
         {
             expiresIn: '1h'
         });
@@ -91,7 +91,7 @@ const login = async (req, res, next) => {
         userId: existingUser._id.toString(),
         email: existingUser.email
     },
-        '321secretterces123',
+        process.env.JWT_SECRET,
         {
             expiresIn: '1h'
         });

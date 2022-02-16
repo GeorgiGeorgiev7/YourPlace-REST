@@ -14,7 +14,7 @@ module.exports = () => (req, res, next) => {
         return next(error);
     }
 
-    const data = jwt.verify(token, '321secretterces123');
+    const data = jwt.verify(token, process.env.JWT_SECRET);
     req.user = { userId: data.userId };
     next();
 };
