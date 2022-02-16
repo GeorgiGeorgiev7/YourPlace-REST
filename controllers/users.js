@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/httpError');
@@ -16,13 +18,8 @@ const userViewModel = (user) => {
 
 
 const getAllUsers = async (req, res, next) => {
-    try {
-        const users = await User.find({});
-        res.json({ users: users.map(userViewModel) });
-    } catch (err) {
-        const error = new HttpError(err.message, 500);
-        return next(error);
-    }
+    const users = await User.find({});
+    res.json({ users: users.map(userViewModel) });
 
 };
 
@@ -30,63 +27,76 @@ const signup = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-
         const error = new HttpError('Invalid data passed.', 422);
         return next(error);
     }
 
     const { username, email, password } = req.body;
 
-    let existingUser;
-    try {
-        existingUser = await User.findOne({ email });
-    } catch (err) {
-        const error = new HttpError(err.message, 422);
-        return next(error);
-    }
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
         const error = new HttpError('User with this email already exists', 422);
         return next(error);
     }
 
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     const createdUser = new User({
         username,
         email,
-        password, //todo hash
+        password: hashedPassword,
         image: req.file.path,
         places: []
     });
 
-    try {
-        await createdUser.save();
-        res
-            .status(201)
-            .json({ user: userViewModel(createdUser) });
+    await createdUser.save();
 
-    } catch (err) {
-        const error = new HttpError(err.message, 500);
-        return next(error);
-    }
+    const token = jwt.sign({
+        userId: createdUser._id.toString(),
+        email: createdUser.email
+    },
+        '321secretterces123',
+        {
+            expiresIn: '1h'
+        });
+
+    res
+        .status(201)
+        .json({
+            user: userViewModel(createdUser),
+            token
+        });
+
 };
 
 const login = async (req, res, next) => {
     const { email, password } = req.body;
+    const existingUser = await User.findOne({ email });
 
-    let existingUser;
-    try {
-        existingUser = await User.findOne({ email });
-    } catch (err) {
-        const error = new HttpError(err.message, 422);
-        return next(error);
-    }
-
-    if (!existingUser || existingUser.password != password) {
+    if (!existingUser) {
         const error = new HttpError('Wrong email or password, please try again', 422);
         return next(error);
     }
 
-    res.json({ user: userViewModel(existingUser) });
+    const isPasswordCorrect = await bcrypt
+        .compare(password, existingUser.password);
+
+    if (!isPasswordCorrect) {
+        const error = new HttpError('Invalid password', 401);
+        return next(error);
+    }
+
+    const token = jwt.sign({
+        userId: existingUser._id.toString(),
+        email: existingUser.email
+    },
+        '321secretterces123',
+        {
+            expiresIn: '1h'
+        });
+
+    res.json({ user: userViewModel(existingUser), token });
 
 };
 

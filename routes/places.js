@@ -5,12 +5,14 @@ const placesController = require('../controllers/places');
 
 const fileUpload = require('../middlewares/file-upload');
 
+const isAuth = require('../middlewares/guards/is-auth');
+
 
 placesRouter.get('/:pid', placesController.getPlaceById);
 
 placesRouter.get('/user/:uid', placesController.getPlacesByUserId);
 
-placesRouter.post('/',
+placesRouter.post('/', isAuth(),
     fileUpload.single('image'),
     [
         check('title').not().isEmpty(),
@@ -19,14 +21,15 @@ placesRouter.post('/',
     ],
     placesController.createPlace);
 
-placesRouter.patch('/:pid',
+placesRouter.patch('/:pid', isAuth(),
     [
         check('title').not().isEmpty(),
         check('description').isLength({ min: 10 })
-    ]
-    , placesController.updatePlaceById);
+    ],
+    placesController.updatePlaceById);
 
-placesRouter.delete('/:pid', placesController.deletePlaceById);
+placesRouter.delete('/:pid', isAuth(),
+    placesController.deletePlaceById);
 
 
 module.exports = placesRouter;
