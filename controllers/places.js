@@ -117,55 +117,58 @@ const updatePlaceById = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        throw new HttpError('Invalid data passed.', 422);
+        const error = new HttpError('Invalid data passed.', 422);
+        return next(error);
     }
+
 
     const placeId = req.params.pid;
     const { title, description } = req.body;
 
-    let updatedPlace;
-    try {
-        updatedPlace = await Place.findByIdAndUpdate(placeId, {
-            title,
-            description
-        });
+    const place = await Place.findById(placeId);
 
-        const user = await User.findById(updatedPlace.creator);
-        const index = user.places
-            .findIndex(p => p._id == updatedPlace._id);
-
-        user.places[index] = updatedPlace;
-
-        res
-            .status(200)
-            .json({ place: placeModelView(updatedPlace) });
-    } catch (err) {
-        const error = new HttpError(err.message, 500);
+    if (place.creator.toString() != req.user.userId) {
+        const error = new HttpError('You are not allowed to edit this place.', 401);
         return next(error);
     }
+
+    place.title = title;
+    place.description = description;
+
+    await place.save();
+
+    const user = await User.findById(place.creator);
+    const index = user.places
+        .findIndex(p => p._id == place._id);
+
+    user.places[index] = place;
+
+    res
+        .status(200)
+        .json({ place: placeModelView(updatedPlace) });
 
 };
 
 const deletePlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
 
-    try {
-        const place = await Place.findByIdAndRemove(placeId);
-        fs.unlink(place.image, err => err && console.log(err));
-
-        const user = await User.findById(place.creator);
-        const index = user.places
-            .findIndex(p => p._id != updatedPlace._id);
-
-        user.places.splice(index, 1);
-
-        res
-            .status(200)
-            .json({ message: 'Successfully deleted place.' });
-    } catch (err) {
-        const error = new HttpError(err.message, 500);
+    if(req.user.userId != placeId) {
+        const error = new HttpError('You are not allowed to delete this place.', 401);
         return next(error);
     }
+
+    const place = await Place.findByIdAndRemove(placeId);
+    fs.unlink(place.image, err => err && console.log(err));
+
+    const user = await User.findById(place.creator.toString());
+    const index = user.places
+        .findIndex(p => p._id != updatedPlace._id);
+
+    user.places.splice(index, 1);
+
+    res
+        .status(200)
+        .json({ message: 'Successfully deleted place.' });
 
 };
 

@@ -83,7 +83,7 @@ const login = async (req, res, next) => {
         .compare(password, existingUser.password);
 
     if (!isPasswordCorrect) {
-        const error = new HttpError('Invalid password', 401);
+        const error = new HttpError('Invalid password', 403);
         return next(error);
     }
 

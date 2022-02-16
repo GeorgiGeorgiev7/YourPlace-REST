@@ -10,7 +10,7 @@ module.exports = () => (req, res, next) => {
     const token = req.headers['Authorization'];
 
     if (!token) {
-        const error = new HttpError('Authentication failed: Invalid token!', 401);
+        const error = new HttpError('Authentication failed: Invalid token!', 403);
         return next(error);
     }
 
