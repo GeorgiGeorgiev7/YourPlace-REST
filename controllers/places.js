@@ -100,6 +100,7 @@ const createPlace = async (req, res, next) => {
 
     try {
         await createdPlace.save();
+
         user.places.push(createdPlace);
         await user.save();
 
@@ -120,7 +121,6 @@ const updatePlaceById = async (req, res, next) => {
         const error = new HttpError('Invalid data passed.', 422);
         return next(error);
     }
-
 
     const placeId = req.params.pid;
     const { title, description } = req.body;
@@ -145,26 +145,29 @@ const updatePlaceById = async (req, res, next) => {
 
     res
         .status(200)
-        .json({ place: placeModelView(updatedPlace) });
+        .json({ place: placeModelView(place) });
 
 };
 
 const deletePlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
 
-    if(req.user.userId != placeId) {
+    const place = await Place.findById(placeId);
+
+    if (req.user.userId != place.creator) {
         const error = new HttpError('You are not allowed to delete this place.', 401);
         return next(error);
     }
 
-    const place = await Place.findByIdAndRemove(placeId);
+    await place.remove();
     fs.unlink(place.image, err => err && console.log(err));
 
     const user = await User.findById(place.creator.toString());
     const index = user.places
-        .findIndex(p => p._id != updatedPlace._id);
+        .findIndex(p => p._id.toString() === placeId);
 
     user.places.splice(index, 1);
+    await user.save();
 
     res
         .status(200)
