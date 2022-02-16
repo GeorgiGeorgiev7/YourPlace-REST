@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
 
 
 const userSchema = new Schema({
@@ -10,6 +9,5 @@ const userSchema = new Schema({
     places: [{ type: Schema.Types.ObjectId, ref: 'Place' }]
 });
 
-userSchema.plugin(uniqueValidator);
 
 module.exports = model('User', userSchema);
