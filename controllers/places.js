@@ -47,10 +47,10 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.uid;
 
-    let places;
+    let user;
 
     try {
-        places = await Place.find({ creator: userId });
+        user = await User.findById(userId).populate('places');
     } catch (err) {
         const error = new HttpError(
             err.message,
@@ -59,7 +59,7 @@ const getPlacesByUserId = async (req, res, next) => {
         return next(error);
     }
 
-    res.json({ places: places.map(placeModelView) });
+    res.json({ places: user.places.map(placeModelView) });
 };
 
 const createPlace = async (req, res, next) => {
@@ -100,6 +100,8 @@ const createPlace = async (req, res, next) => {
 
     try {
         await createdPlace.save();
+        user.places.push(createdPlace);
+        await user.save();
 
         res
             .status(201)
@@ -128,6 +130,12 @@ const updatePlaceById = async (req, res, next) => {
             description
         });
 
+        const user = await User.findById(updatedPlace.creator);
+        const index = user.places
+            .findIndex(p => p._id == updatedPlace._id);
+
+        user.places[index] = updatedPlace;
+
         res
             .status(200)
             .json({ place: placeModelView(updatedPlace) });
@@ -143,7 +151,13 @@ const deletePlaceById = async (req, res, next) => {
 
     try {
         const place = await Place.findByIdAndRemove(placeId);
-        fs.unlink(place.image, err => console.log(err));
+        fs.unlink(place.image, err => err && console.log(err));
+
+        const user = await User.findById(place.creator);
+        const index = user.places
+            .findIndex(p => p._id != updatedPlace._id);
+
+        user.places.splice(index, 1);
 
         res
             .status(200)

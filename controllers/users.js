@@ -62,7 +62,8 @@ const signup = async (req, res, next) => {
         await createdUser.save();
         res
             .status(201)
-            .json({ createdUser: userViewModel(createdUser) });
+            .json({ user: userViewModel(createdUser) });
+
     } catch (err) {
         const error = new HttpError(err.message, 500);
         return next(error);
