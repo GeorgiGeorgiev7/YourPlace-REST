@@ -38,5 +38,5 @@ async function start() {
     app.use(errorHandler());
 
     app.listen(process.env.PORT, () =>
-        console.log(`>>> Server running: http://localhost:${process.env.PORT}`));
+        console.log(`>>> Server running`));
 }
