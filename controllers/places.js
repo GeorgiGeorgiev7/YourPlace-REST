@@ -9,7 +9,7 @@ const Place = require('../models/Place');
 const User = require('../models/User');
 
 
-const placeModelView = (place) => {
+const placeModelView = () => (place) => {
     return {
         id: place.id,
         title: place.title,
@@ -21,7 +21,7 @@ const placeModelView = (place) => {
     };
 };
 
-const getPlaceById = async (req, res, next) => {
+const getPlaceById = () => async (req, res, next) => {
     const placeId = req.params.pid;
 
     let place;
@@ -44,7 +44,7 @@ const getPlaceById = async (req, res, next) => {
     res.json({ place: placeModelView(place) });
 };
 
-const getPlacesByUserId = async (req, res, next) => {
+const getPlacesByUserId = () => async (req, res, next) => {
     const userId = req.params.uid;
 
     let user;
@@ -59,10 +59,15 @@ const getPlacesByUserId = async (req, res, next) => {
         return next(error);
     }
 
-    res.json({ places: user.places.map(placeModelView) });
+    if (user) {
+        res.json({ places: user.places.map(placeModelView) });
+    } else {
+        res.json({ places: [] });
+    }
+
 };
 
-const createPlace = async (req, res, next) => {
+const createPlace = () => async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(new HttpError('Invalid data passed.', 422));
@@ -114,7 +119,7 @@ const createPlace = async (req, res, next) => {
 
 };
 
-const updatePlaceById = async (req, res, next) => {
+const updatePlaceById = () => async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -149,7 +154,7 @@ const updatePlaceById = async (req, res, next) => {
 
 };
 
-const deletePlaceById = async (req, res, next) => {
+const deletePlaceById = () => async (req, res, next) => {
     const placeId = req.params.pid;
 
     const place = await Place.findById(placeId);

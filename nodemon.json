@@ -1,8 +1,0 @@
-{
-    "env": {
-        "CONNECTION_STRING": "mongodb://localhost:27017/yourplace",
-        "PORT": 8080,
-        "GOOGLE_API_KEY": "AIzaSyCbf2YqaGIBoCVKagLFYva8MkRkJAPxd-s",
-        "JWT_SECRET": "321secretterces123"
-    }
-}

@@ -6,7 +6,7 @@ const HttpError = require('../models/httpError');
 const User = require('../models/User');
 
 
-const userViewModel = (user) => {
+const userViewModel = () => (user) => {
     return {
         id: user.id,
         username: user.username,
@@ -17,13 +17,13 @@ const userViewModel = (user) => {
 };
 
 
-const getAllUsers = async (req, res, next) => {
+const getAllUsers = () => async (req, res, next) => {
     const users = await User.find({});
     res.json({ users: users.map(userViewModel) });
 
 };
 
-const signup = async (req, res, next) => {
+const signup = () => async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -70,7 +70,7 @@ const signup = async (req, res, next) => {
 
 };
 
-const login = async (req, res, next) => {
+const login = () => async (req, res, next) => {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email });
 

@@ -5,7 +5,7 @@ const usersController = require('../controllers/users');
 const fileUpload = require('../middlewares/file-upload');
 
 
-usersRouter.get('/', usersController.getAllUsers);
+usersRouter.get('/', usersController.getAllUsers());
 
 usersRouter.post('/signup',
     fileUpload.single('image'),
@@ -14,9 +14,9 @@ usersRouter.post('/signup',
         check('email').normalizeEmail().isEmail(),
         check('password').isLength({ min: 8 })
     ],
-    usersController.signup);
+    usersController.signup());
 
-usersRouter.post('/login', usersController.login);
+usersRouter.post('/login', usersController.login());
 
 
-module.exports = usersRouter;
+module.exports = () => usersRouter;

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 
 const express = require('express');
@@ -28,8 +29,8 @@ async function start() {
     app.use('/uploads/images',
         express.static(path.join('uploads', 'images')));
 
-    app.use('/api/places', placesRouter);
-    app.use('/api/users', usersRoutes);
+    app.use('/api/places', placesRouter());
+    app.use('/api/users', usersRoutes());
 
     app.use('/*', () => {
         throw new HttpError('Could not find this route.', 404);
